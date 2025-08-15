@@ -14,6 +14,7 @@ static long read_last(const char *p){
     if(!f) return 0;
     long v=0; if(fscanf(f,"%ld",&v)!=1) v=0; fclose(f); return v;
 }
+
 static int write_last(const char *p, long v){
     FILE *f=fopen(p,"w"); if(!f) return -1;
     fprintf(f,"%ld\n",v); fclose(f); return 0;
@@ -74,3 +75,31 @@ int idmap_get_or_assign(struct idmap *m, const char *key, char out_id[64]){
     return 0;
 }
 
+
+int idmap_ensure_mapping(struct idmap *m, const char *key, const char *id){
+    // Return 0 if mapping exists or was created, -1 on error
+    fflush(m->mapf);
+    // Check existing
+    FILE *f = fopen(m->map_path, "r");
+    if (f) {
+        char *line = NULL; size_t cap = 0; int found = 0;
+        while (getline(&line, &cap, f) > 0) {
+            char *tab = strchr(line, '\t');
+            if (!tab) continue;
+            *tab = 0;
+            if (strcmp(line, key) == 0) { found = 1; break; }
+        }
+        free(line);
+        fclose(f);
+        if (found) return 0;
+    }
+    // Append mapping
+    FILE *a = fopen(m->map_path, "a");
+    if (!a) return -1;
+    fprintf(a, "%s\t%s\n", key, id);
+    fclose(a);
+    // Reopen mapf in append+read mode for future ops
+    if (m->mapf) fclose(m->mapf);
+    m->mapf = fopen(m->map_path, "a+");
+    return m->mapf ? 0 : -1;
+}

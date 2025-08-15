@@ -11,6 +11,7 @@ struct idmap {
 int idmap_open(struct idmap *m, const char *map_path, const char *lastid_path);
 void idmap_close(struct idmap *m);
 int idmap_get_or_assign(struct idmap *m, const char *key, char out_id[64]);
+int idmap_ensure_mapping(struct idmap *m, const char *key, const char *id);
+
 
 #endif
-

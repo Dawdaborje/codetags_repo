@@ -336,6 +336,8 @@ int main(int argc, char **argv) {
         return cmd_scan(argv[2]);
     } else if (strcmp(cmd, "watch") == 0) {
         return cmd_watch();
+    } else if (strcmp(cmd, "groot") == 0) {
+        return cmd_watch();
     } else if (strcmp(cmd, "reindex") == 0) {
         return cmd_reindex();
     } else {
